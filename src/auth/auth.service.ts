@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
 import { Token } from './types';
@@ -13,6 +13,67 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private config: ConfigService,
   ) {}
+
+  async signupLocal(dto: AuthDto): Promise<Token> {
+    const { email, password } = dto;
+
+    const hash = await this.hashData(password);
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        email: email,
+        hash,
+      },
+    });
+
+    // const tokens = await this.getTokens(newUser.id, newUser.email);
+
+    // await this.updateRtHash(newUser.id, tokens.refresh_token);
+
+    // return tokens;
+
+    const tokens = this.generatingTokensForRT(newUser.id, newUser.email);
+
+    return tokens;
+  }
+
+  async signinLocal(dto: AuthDto): Promise<Token> {
+    const { email, password } = dto;
+
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.hash);
+
+    if (!passwordMatches) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    // const tokens = await this.getTokens(user.id, user.email);
+
+    // await this.updateRtHash(user.id, tokens.refresh_token);
+
+    // return tokens;
+
+    const tokens = this.generatingTokensForRT(user.id, user.email);
+
+    return tokens;
+  }
+
+  logout() {}
+
+  refreshToken() {}
+
+  async generatingTokensForRT(userId: number, email: string) {
+    const tokens = await this.getTokens(userId, email);
+
+    await this.updateRtHash(userId, tokens.refresh_token);
+
+    return tokens;
+  }
 
   hashData(data: string) {
     return bcrypt.hash(data, 10);
@@ -49,26 +110,16 @@ export class AuthService {
     };
   }
 
-  async signupLocal(dto: AuthDto): Promise<Token> {
-    const { email, password } = dto;
+  async updateRtHash(userId: number, refreshToken: string) {
+    const hash = await this.hashData(refreshToken);
 
-    const hash = await this.hashData(password);
-
-    const newUser = await this.prisma.user.create({
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
       data: {
-        email: email,
-        hash,
+        hashedRt: hash,
       },
     });
-
-    const tokens = await this.getTokens(newUser.id, newUser.email);
-
-    return tokens;
   }
-
-  signinLocal() {}
-
-  logout() {}
-
-  refreshToken() {}
 }
