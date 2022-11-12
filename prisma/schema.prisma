@@ -20,10 +20,14 @@ model Article {
 model User {
     id Int @id @default(autoincrement())
     email String @unique
+    hash String
+    hashedRt String?
     name String?
     role Role @default(USER)
     posts Post[]
     createdAt DateTime @default(now())
+
+    @@map("users")
 
 }
 
