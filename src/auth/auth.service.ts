@@ -77,7 +77,25 @@ export class AuthService {
     });
   }
 
-  refreshToken() {}
+  async refreshToken(userId: number, refreshToken: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const rtMatches = await bcrypt.compare(refreshToken, user.hashedRt);
+
+    if (!rtMatches) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const tokens = this.generatingTokensForRT(user.id, user.email);
+
+    return tokens;
+  }
 
   async generatingTokensForRT(userId: number, email: string) {
     const tokens = await this.getTokens(userId, email);
