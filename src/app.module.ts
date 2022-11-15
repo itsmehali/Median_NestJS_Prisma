@@ -7,10 +7,20 @@ import { ArticlesModule } from './articles/articles.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './guards';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ArticlesModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    ArticlesModule,
+    AuthModule,
+    PostsModule,
+  ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: AccessTokenGuard }],
+  providers: [
+    AppService,
+    // { provide: APP_GUARD, useClass: AccessTokenGuard }
+  ],
 })
 export class AppModule {}

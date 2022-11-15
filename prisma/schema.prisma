@@ -8,37 +8,41 @@ datasource db {
 }
 
 model Article {
-    id Int @id @default(autoincrement())
-    title String @unique
-    description String?
-    body String
-    published Boolean @default(false)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String   @unique
+  description String?
+  body        String
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("articles")
 }
 
 model User {
-    id Int @id @default(autoincrement())
-    email String @unique
-    hash String
-    hashedRt String?
-    name String?
-    role Role @default(USER)
-    posts Post[]
-    createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  hash      String
+  hashedRt  String?
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  posts     Post[]
 
-    @@map("users")
-
+  @@map("users")
 }
 
 model Post {
-    id Int @id @default(autoincrement())
-    published Boolean @default(false)
-    title String @db.VarChar(255)
-    author User? @relation(fields: [authorId], references: [id])
-    authorId Int?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  image       String?
+  description String?
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User?    @relation(fields: [authorId], references: [id])
+
+  @@map("posts")
 }
 
 enum Role {

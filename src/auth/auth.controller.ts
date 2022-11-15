@@ -10,27 +10,27 @@ import { CurrentUser, CurrentUserId, Public } from './decoraters';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
+  //@Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
   signupLocal(@Body() dto: AuthDto): Promise<Token> {
     return this.authService.signupLocal(dto);
   }
 
-  @Public()
+  // @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
   signinLocal(@Body() dto: AuthDto): Promise<Token> {
     return this.authService.signinLocal(dto);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Post('local/logout')
   @HttpCode(HttpStatus.OK)
   logout(@CurrentUserId() userId: number) {
     return this.authService.logout(userId);
   }
 
-  @Public()
   @UseGuards(RefreshTokenGuard)
   @Post('local/refresh')
   @HttpCode(HttpStatus.OK)
