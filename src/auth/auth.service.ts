@@ -5,6 +5,8 @@ import { Token } from './types';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { userInfo } from 'os';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +34,7 @@ export class AuthService {
 
     // return tokens;
 
-    const tokens = this.generatingTokensForRT(newUser.id, newUser.email);
+    const tokens = this.generatingTokensForRT(newUser.id, newUser.email, newUser.role);
 
     return tokens;
   }
@@ -58,7 +60,7 @@ export class AuthService {
 
     // return tokens;
 
-    const tokens = this.generatingTokensForRT(user.id, user.email);
+    const tokens = this.generatingTokensForRT(user.id, user.email, user.role);
 
     return tokens;
   }
@@ -92,13 +94,13 @@ export class AuthService {
       throw new ForbiddenException('Access Denied');
     }
 
-    const tokens = this.generatingTokensForRT(user.id, user.email);
+    const tokens = this.generatingTokensForRT(user.id, user.email, user.role);
 
     return tokens;
   }
 
-  async generatingTokensForRT(userId: number, email: string) {
-    const tokens = await this.getTokens(userId, email);
+  async generatingTokensForRT(userId: number, email: string, userRole: Role) {
+    const tokens = await this.getTokens(userId, email, userRole);
 
     await this.updateRtHash(userId, tokens.refresh_token);
 
@@ -109,12 +111,13 @@ export class AuthService {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: number, email: string) {
+  async getTokens(userId: number, email: string, userRole: Role) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           email,
+          role: userRole,
         },
         {
           secret: this.config.get<string>('AT_SECRET'),

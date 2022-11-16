@@ -11,6 +11,5 @@ export class AuthDto {
   @IsString()
   password: string;
 
-  @IsNotEmpty()
   role: Role;
 }

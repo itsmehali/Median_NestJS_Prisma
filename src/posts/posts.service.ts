@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { JwtPayload } from 'src/auth/JwtPayload.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -8,8 +8,8 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createPostDto: CreatePostDto, user: number) {
-    createPostDto.authorId = user;
+  create(createPostDto: CreatePostDto, user: JwtPayload) {
+    createPostDto.authorId = user.sub;
     return this.prisma.post.create({ data: createPostDto });
   }
 
