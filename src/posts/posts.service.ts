@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtPayload } from 'src/auth/JwtPayload.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -13,19 +18,28 @@ export class PostsService {
     return this.prisma.post.create({ data: createPostDto });
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  findAll(title: string) {
+    return this.prisma.post.findMany({ where: { title } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    return this.prisma.post.findUnique({ where: { id } });
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
     return `This action updates a #${id} post`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number, user: JwtPayload) {
+    if (!user) throw new NotFoundException('User not found');
+
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) throw new NotFoundException('Post not found');
+
+    if (post.authorId !== user.sub && user.role === 'USER') {
+      throw new UnauthorizedException('You do not have access to do that!');
+    }
+
+    return this.prisma.post.delete({ where: { id } });
   }
 }

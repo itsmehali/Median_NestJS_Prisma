@@ -9,6 +9,9 @@ import {
   UseGuards,
   Req,
   Logger,
+  Query,
+  ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -37,13 +40,17 @@ export class PostsController {
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query('title') title: string) {
+    return this.postsService.findAll(title);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const post = await this.postsService.findOne(id);
+
+    if (!post) throw new NotFoundException('Post not found');
+
+    return post;
   }
 
   @Patch(':id')
@@ -51,8 +58,10 @@ export class PostsController {
     return this.postsService.update(+id, updatePostDto);
   }
 
+  @Roles(Role.USER, Role.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return this.postsService.remove(id, req.user);
   }
 }
