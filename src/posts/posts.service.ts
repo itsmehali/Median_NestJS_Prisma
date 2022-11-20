@@ -14,8 +14,8 @@ export class PostsService {
   constructor(private prisma: PrismaService) {}
 
   create(createPostDto: CreatePostDto, user: JwtPayload) {
-    createPostDto.authorId = user.sub;
-    return this.prisma.post.create({ data: createPostDto });
+    //createPostDto.authorId = user.sub;
+    return this.prisma.post.create({ data: { ...createPostDto, authorId: user.sub } });
   }
 
   findAll(title: string) {
