@@ -1,4 +1,13 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreatePostDto } from './create-post.dto';
+import { IsOptional, IsString } from 'class-validator';
 
-export class UpdatePostDto extends PartialType(CreatePostDto) {}
+export class UpdatePostDto {
+  @IsString()
+  @IsOptional()
+  title: string;
+  @IsString()
+  @IsOptional()
+  image: string;
+  @IsString()
+  @IsOptional()
+  description: string;
+}

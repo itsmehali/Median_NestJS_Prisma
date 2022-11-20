@@ -53,14 +53,22 @@ export class PostsController {
     return post;
   }
 
+  @Roles(Role.USER)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @ApiCreatedResponse({ type: PostEntity })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() req: Request,
+  ) {
+    return this.postsService.update(id, updatePostDto, req.user);
   }
 
   @Roles(Role.USER, Role.ADMIN)
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Delete(':id')
+  @ApiCreatedResponse({ type: PostEntity })
   remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     return this.postsService.remove(id, req.user);
   }
