@@ -13,7 +13,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createPostDto: CreatePostDto, user: JwtPayload) {
+  create(createPostDto: CreatePostDto, user: JwtPayload): Promise<CreatePostDto> {
     //createPostDto.authorId = user.sub;
     return this.prisma.post.create({ data: { ...createPostDto, authorId: user.sub } });
   }

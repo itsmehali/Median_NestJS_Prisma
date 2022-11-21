@@ -12,6 +12,8 @@ import {
   Query,
   ParseIntPipe,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -23,6 +25,8 @@ import { RolesGuard } from 'src/guards/roles.guard';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 import { PostEntity } from './entities/post.entity';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { saveImageToStorage } from 'src/helpers/imageHelper';
 
 @Controller('posts')
 export class PostsController {
@@ -30,12 +34,16 @@ export class PostsController {
 
   @Roles(Role.USER)
   @UseGuards(AccessTokenGuard, RolesGuard)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiCreatedResponse({ type: PostEntity })
   @Post()
-  create(@Body() createPostDto: CreatePostDto, @Req() req: Request) {
-    //,
-    //Logger.log('here should be the request specific user', req.user);
-    // return 'test';
+  create(
+    @Body() createPostDto: CreatePostDto,
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<CreatePostDto> {
+    if (file) createPostDto.image = file.filename;
+
     return this.postsService.create(createPostDto, req.user);
   }
 
