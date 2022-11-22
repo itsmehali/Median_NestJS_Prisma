@@ -26,7 +26,6 @@ import { ApiCreatedResponse } from '@nestjs/swagger';
 import { PostEntity } from './entities/post.entity';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { saveImageToStorage } from 'src/helpers/imageHelper';
 
 @Controller('posts')
 export class PostsController {
