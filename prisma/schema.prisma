@@ -42,20 +42,22 @@ model Post {
   authorId    Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  author      User?    @relation(fields: [authorId], references: [id])
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@map("posts")
 }
 
 model Profile {
   id Int @id @default(autoincrement())
-  image String?
+  image    String?
   nickname String?
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id] , onDelete: Cascade)
   userId Int @unique
+
 
   @@map("profile")
 }
+
 
 enum Role {
   USER

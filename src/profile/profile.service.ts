@@ -8,7 +8,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfileService {
   constructor(private prisma: PrismaService) {}
 
-  create(createProfileDto: CreateProfileDto, user: JwtPayload): Promise<CreateProfileDto> {
+  create(createProfileDto: CreateProfileDto, user: JwtPayload) {
     return this.prisma.profile.create({ data: { ...createProfileDto, userId: user.sub } });
   }
 
