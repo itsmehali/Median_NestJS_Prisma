@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
@@ -33,9 +34,14 @@ export class UserController {
   @Put('friend-request/response/:friendRequestId')
   respondToFriendRequest(
     @Param('friendRequestId', ParseIntPipe) friendRequestId: number,
-    @Req() statusResponse: FriendRequestStatus,
+    @Body() statusResponse: FriendRequestStatus,
+    @Req() req: Request,
   ) {
-    return this.userService.respondToFriendRequest(friendRequestId, statusResponse.status);
+    return this.userService.respondToFriendRequest(
+      friendRequestId,
+      statusResponse.status,
+      req.user,
+    );
   }
 
   @Roles(Role.USER)

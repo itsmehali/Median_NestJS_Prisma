@@ -33,7 +33,20 @@ export class UserService {
     }
   }
 
-  async respondToFriendRequest(friendRequestId: number, statusResponse: FriendRequest_Status) {
+  async respondToFriendRequest(
+    friendRequestId: number,
+    statusResponse: FriendRequest_Status,
+    currentUser: JwtPayload,
+  ) {
+    const findMyselfInFriendRequest = await this.findFriendRequestById(friendRequestId);
+
+    if (currentUser.sub !== findMyselfInFriendRequest.id) {
+      throw new HttpException(
+        'You can not interract with this friend request.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     return await this.prisma.friendRequest.update({
       where: { id: friendRequestId },
       data: { status: statusResponse },
@@ -61,5 +74,9 @@ export class UserService {
 
   findUserById(id: number) {
     return this.prisma.user.findFirst({ where: { id } });
+  }
+
+  findFriendRequestById(id: number) {
+    return this.prisma.friendRequest.findFirst({ where: { id } });
   }
 }
