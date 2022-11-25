@@ -29,6 +29,8 @@ model User {
   createdAt DateTime @default(now())
   posts     Post[]
   profile  Profile?
+  sentFriendRequest FriendRequest[] @relation("sendReferral")
+  receiverFriendRequest FriendRequest[] @relation("receiveReferral")
 
 
   @@map("users")
@@ -56,6 +58,15 @@ model Profile {
 
 
   @@map("profile")
+}
+
+model FriendRequest {
+    id Int @id @default(autoincrement())
+    creatorId      User?    @relation(fields: [creator], references: [id], name: "sendReferral" , onDelete: Cascade)
+    creator Int
+    receiverId      User?    @relation(fields: [receiver], references: [id], name: "receiveReferral", onDelete: Cascade)
+    receiver Int
+    status String
 }
 
 

@@ -5,6 +5,7 @@
 .env
 
 /uploads
+/profile_pictures
 
 # Logs
 logs
