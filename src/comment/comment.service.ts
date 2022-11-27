@@ -18,8 +18,8 @@ export class CommentService {
     });
   }
 
-  findAll() {
-    return `This action returns all comment`;
+  async findAll() {
+    return await this.prisma.comment.findMany();
   }
 
   async findOne(id: number) {

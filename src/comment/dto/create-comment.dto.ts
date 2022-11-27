@@ -4,7 +4,7 @@ export class CreateCommentDto {
   @MinLength(5)
   @MaxLength(60)
   @IsString()
-  comment: String;
+  comment: string;
 
   userId: number;
 
