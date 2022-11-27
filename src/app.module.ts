@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './guards';
 import { PostsModule } from './posts/posts.module';
 import { ProfileModule } from './profile/profile.module';
+import { CommentModule } from './comment/comment.module';
 
 import * as Joi from '@hapi/joi';
 
@@ -30,6 +31,7 @@ import * as Joi from '@hapi/joi';
     AuthModule,
     PostsModule,
     ProfileModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [
