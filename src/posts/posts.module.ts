@@ -24,5 +24,6 @@ import * as redisStore from 'cache-manager-redis-store';
   ],
   controllers: [PostsController],
   providers: [PostsService],
+  exports: [PostsService],
 })
 export class PostsModule {}

@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decoraters';
@@ -28,13 +29,13 @@ export class CommentController {
   @Roles(Role.USER)
   @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiCreatedResponse({ type: CommentEntity })
-  @Post(':id')
-  async create(
-    @Param('id', ParseIntPipe) postId: number,
+  @Post(':postId')
+  create(
+    @Param('postId', ParseIntPipe) postId: number,
     @Body() createCommentDto: CreateCommentDto,
     @Req() req: Request,
   ) {
-    return await this.commentService.create(postId, createCommentDto, req.user);
+    return this.commentService.create(postId, createCommentDto, req.user);
   }
 
   @Get()
@@ -47,13 +48,23 @@ export class CommentController {
     return this.commentService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentService.update(+id, updateCommentDto);
+  @Roles(Role.USER)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @ApiCreatedResponse({ type: CommentEntity })
+  @Patch(':commentId')
+  update(
+    @Param('commentId', ParseIntPipe) commentId: number,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: Request,
+  ) {
+    return this.commentService.update(commentId, updateCommentDto, req.user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentService.remove(+id);
+  @Roles(Role.USER, Role.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Delete(':commentId')
+  @ApiCreatedResponse({ type: CommentEntity })
+  remove(@Param('commentId', ParseIntPipe) id: number, @Req() req: Request) {
+    return this.commentService.remove(id, req.user);
   }
 }
