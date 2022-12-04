@@ -10,6 +10,7 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -48,17 +49,21 @@ export class ProfileController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profileService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.profileService.findOne(id);
   }
 
+  @Roles(Role.USER)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
     return this.profileService.update(+id, updateProfileDto);
   }
 
+  @Roles(Role.USER, Role.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.profileService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return this.profileService.remove(id, req.user);
   }
 }
