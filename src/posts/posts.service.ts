@@ -48,7 +48,7 @@ export class PostsService {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
 
-    if (post.authorId !== user.sub || user.role === 'ADMIN') {
+    if (post.authorId !== user.sub && user.role !== 'ADMIN') {
       throw new UnauthorizedException('You do not have access to do that!');
     }
 
