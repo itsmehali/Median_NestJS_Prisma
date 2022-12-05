@@ -55,9 +55,17 @@ export class ProfileController {
 
   @Roles(Role.USER)
   @UseGuards(AccessTokenGuard, RolesGuard)
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiCreatedResponse({ type: ProfileEntity })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profileService.update(+id, updateProfileDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProfileDto: UpdateProfileDto,
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (file) updateProfileDto.image = file.filename;
+    return this.profileService.update(id, updateProfileDto, req.user);
   }
 
   @Roles(Role.USER, Role.ADMIN)
